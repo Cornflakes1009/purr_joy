@@ -8,8 +8,6 @@
 
 import UIKit
 
-let receivedTagsNotificationKey = "co.harolddavidson.receivedTags"
-
 class TagsViewController: UIViewController {
     
     let receivedTags = Notification.Name(rawValue: receivedTagsNotificationKey)

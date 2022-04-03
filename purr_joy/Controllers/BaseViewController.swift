@@ -8,8 +8,6 @@
 
 import UIKit
 
-let receivedCatNotificationKey = "co.harolddavidson.receivedCat"
-
 class BaseViewController: UIViewController {
 
     let url = "https://cataas.com/cat?json=true"

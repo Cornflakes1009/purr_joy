@@ -12,3 +12,7 @@ let backgroundImage = UIImage(named: "hello_kitty_background")
 
 // MARK: - Fonts
 let titleLabelFont = UIFont(name: "CITCAT", size: 40)
+
+// MARK: - Notifications
+let receivedCatNotificationKey = "co.harolddavidson.receivedCat"
+let receivedTagsNotificationKey = "co.harolddavidson.receivedTags"
