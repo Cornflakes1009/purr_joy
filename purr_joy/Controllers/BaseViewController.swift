@@ -12,6 +12,10 @@ class BaseViewController: UIViewController {
 
     let url = "https://cataas.com/cat?json=true"
     let receivedCat = Notification.Name(rawValue: receivedCatNotificationKey)
+
+    var favoritesButtonImage = UIImage(systemName: "heart", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .light, scale: .large))
+    
+    private let favoritesBarButton = UIBarButtonItem()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -20,6 +24,14 @@ class BaseViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         return label
+    }()
+    
+    private let favoritesButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = .white
+        button.addTarget(nil, action: #selector(addToFavoritesTapped), for: .touchUpInside)
+        return button
     }()
     
     private let bottomLeftButton: UIButton = {
@@ -60,12 +72,15 @@ class BaseViewController: UIViewController {
 
         setupViews()
         addObservers()
-        getData(from: url)
+        getCat(from: url, with: receivedCatNotificationKey)
     }
     
     // MARK: - Setting Up Views
     private func setupViews() {
         view.backgroundColor = .systemPink
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .done, target: self, action: #selector(favoritesTapped))
+        navigationController?.navigationBar.tintColor = .black
         
         view.addSubview(titleLabel)
         NSLayoutConstraint.activate([
@@ -107,13 +122,55 @@ class BaseViewController: UIViewController {
     }
     
     @objc func updateCatImage(notification: NSNotification) {
-        print(cat)
-        setImage(url: "https://cataas.com/cat?id=\(cat.id)", imageView: catImageView)
+        if cat.id != "" {
+            setImage(url: "https://cataas.com/cat?id=\(cat.id)", imageView: catImageView)
+            
+            let icon = isFavorite(id: cat.id) ? "heart.fill" : "heart"
+            setImageFavoriteIcon(with: icon)
+            
+            favoritesButton.setImage(favoritesButtonImage, for: .normal)
+            view.addSubview(favoritesButton)
+            NSLayoutConstraint.activate([
+                favoritesButton.topAnchor.constraint(equalTo: catImageView.topAnchor, constant: 2),
+                favoritesButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20)])
+        } else {
+            catImageView.image = UIImage(named: "cat_not_found")
+        }
+    }
+    
+    private func isFavorite(id: String) -> Bool {
+        if !favoriteCats.contains(cat.id) {
+            return false
+        } else {
+            return true
+        }
+    }
+    
+    private func setImageFavoriteIcon(with image: String) {
+        favoritesButtonImage = UIImage(systemName: "\(image)", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .light, scale: .large))
+        favoritesButton.setImage(favoritesButtonImage, for: .normal)
     }
     
     // MARK: - Button Actions
+    @objc func favoritesTapped() {
+        let vc = FavoritesViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func addToFavoritesTapped() {
+        if !isFavorite(id: cat.id) {
+            favoriteCats.append(cat.id)
+            setImageFavoriteIcon(with: "heart.fill")
+        } else {
+            favoriteCats.remove(at: favoriteCats.firstIndex(of: cat.id)!)
+            setImageFavoriteIcon(with: "heart")
+        }
+        
+        defaults.set(favoriteCats, forKey: "favorites")
+    }
+    
     @objc func hereKittyKittyTapped() {
-        getData(from: url)
+        getCat(from: url, with: receivedCatNotificationKey)
     }
     
     @objc func seeAllTagsTapped() {

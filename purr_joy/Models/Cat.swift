@@ -16,7 +16,7 @@ struct Cat {
     var url: String
 }
 
-func getData(from url: String) {
+func getCat(from url: String, with notification: String) {
     let task = URLSession.shared.dataTask(with: URL(string: url)!) { data, response, error in
         guard let data = data else { return }
         let jsonData = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
@@ -26,7 +26,7 @@ func getData(from url: String) {
         let url = jsonData?["url"] as? String ?? ""
         DispatchQueue.main.async {
             cat = Cat(id: id, created_at: created_at, tags: tags, url: url)
-            let name = Notification.Name(rawValue: receivedCatNotificationKey)
+            let name = Notification.Name(rawValue: notification)
             NotificationCenter.default.post(name: name, object: nil)
         }
     }

@@ -1,16 +1,15 @@
 //
-//  TagsViewController.swift
+//  FavoritesViewController.swift
 //  purr_joy
 //
-//  Created by HaroldDavidson on 4/2/22.
+//  Created by HaroldDavidson on 4/3/22.
 //
-// table view of all available tags
+//
+// Showing all the favorite cats. This view has some serious performance issues. Not sure if due to slow API or something with my code. I would be very happy if the code reviewer wanted to provide feedback.
 
 import UIKit
 
-class TagsViewController: UIViewController {
-    
-    let receivedTags = Notification.Name(rawValue: receivedTagsNotificationKey)
+class FavoritesViewController: UIViewController {
 
     private let backgroundView: UIImageView = {
         let image = UIImageView()
@@ -21,14 +20,13 @@ class TagsViewController: UIViewController {
         return image
     }()
     
-    private let tagsTable = UITableView()
+    private let favoritesTable = UITableView()
     
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupViews()
-        addObservers()
         getTags(from: "https://cataas.com/api/tags")
     }
     
@@ -47,46 +45,32 @@ class TagsViewController: UIViewController {
     }
     
     private func configureTableView() {
-        tagsTable.delegate = self
-        tagsTable.dataSource = self
-        tagsTable.translatesAutoresizingMaskIntoConstraints = false
-        tagsTable.register(TagCell.self, forCellReuseIdentifier: "TagCell")
-        tagsTable.rowHeight = 50
-        tagsTable.backgroundColor = .none
+        favoritesTable.delegate = self
+        favoritesTable.dataSource = self
+        favoritesTable.translatesAutoresizingMaskIntoConstraints = false
+        favoritesTable.register(FavoriteCell.self, forCellReuseIdentifier: "FavoriteCell")
+        favoritesTable.backgroundColor = .clear
+        favoritesTable.rowHeight = UITableView.automaticDimension
+        favoritesTable.estimatedRowHeight = 600
         
-        view.addSubview(tagsTable)
+        view.addSubview(favoritesTable)
         NSLayoutConstraint.activate([
-            tagsTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            tagsTable.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
-            tagsTable.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
-            tagsTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+            favoritesTable.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            favoritesTable.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20),
+            favoritesTable.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
+            favoritesTable.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
-    }
-    
-    // MARK: - Notification Center
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(TagsViewController.updateTags(notification:)), name: receivedTags, object: nil)
-    }
-    
-    @objc func updateTags(notification: NSNotification) {
-        tagsTable.reloadData()
-        print(tags)
     }
 }
 
-extension TagsViewController: UITableViewDelegate, UITableViewDataSource {
+extension FavoritesViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tags.count
+        return favoriteCats.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TagCell") as! TagCell
-        cell.tagLabel.text = tags[indexPath.row]
-        cell.backgroundColor = .clear
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FavoriteCell") as! FavoriteCell
+        setImage(url: "https://cataas.com/cat?id=\(favoriteCats[indexPath.row])", imageView: cell.favoriteImage)
         return cell
     }
     

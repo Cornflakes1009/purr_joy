@@ -1,23 +1,26 @@
 //
-//  CatTagViewController.swift
+//  CatWithTagViewController.swift
 //  purr_joy
 //
 //  Created by HaroldDavidson on 4/2/22.
 //
 // VC showing the tag of the cat and an image using that tag
+//
+// The blank, #Christmascat, and 3 tags don't always show cats. When this happens, I check the URL of the call and I get a 404 on Cataas as well. This doesn't always happen though?
 
 import UIKit
 
-class CatTagViewController: UIViewController {
+class CatWithTagViewController: UIViewController {
 
     var catTag = ""
-    let receivedCatTag = Notification.Name(rawValue: receivedCatNotificationKey)
+    let receivedCatTag = Notification.Name(rawValue: receivedCatWithTagNotificationKey)
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = titleLabelFont
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
     
@@ -37,7 +40,9 @@ class CatTagViewController: UIViewController {
         addObservers()
         setupViews()
         
-        getData(from: "https://cataas.com/cat/\(catTag)?json=true")
+        catTag = verifyTag(tag: catTag)
+        
+        getCat(from: "https://cataas.com/cat/\(catTag)?json=true", with: receivedCatWithTagNotificationKey)
     }
     
     // MARK: - Notification Center
@@ -46,11 +51,15 @@ class CatTagViewController: UIViewController {
     }
     
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(CatTagViewController.updateCatImage(notification:)), name: receivedCatTag, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(CatWithTagViewController.updateCatImage(notification:)), name: receivedCatTag, object: nil)
     }
     
     @objc func updateCatImage(notification: NSNotification) {
-        setImage(url: "https://cataas.com/cat?id=\(cat.id)", imageView: catImageView)
+        if cat.id != "" {
+            setImage(url: "https://cataas.com/cat?id=\(cat.id)", imageView: catImageView)
+        } else {
+            catImageView.image = UIImage(named: "cat_not_found")
+        }
     }
     
     // MARK: - Setting Up Views
@@ -73,5 +82,18 @@ class CatTagViewController: UIViewController {
             catImageView.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20),
             catImageView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
+    }
+    
+    // handling tags with spaces
+    private func verifyTag(tag: String) -> String {
+        var newTag = ""
+        for char in tag {
+            if char == " " {
+                newTag += "%20"
+            } else {
+                newTag += String(char)
+            }
+        }
+        return newTag
     }
 }

@@ -17,6 +17,9 @@ func getTags(from url: String) {
             let data = Data(data)
             do {
                 tags = try JSONSerialization.jsonObject(with: data) as! [String]
+                // capitalizing the tags to help with both sorting and to save from doing it on each cell.
+                tags = tags.map { $0.capitalized }
+                tags = tags.sorted()
             } catch {
                 print(error)
             }
