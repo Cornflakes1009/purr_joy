@@ -170,6 +170,7 @@ class BaseViewController: UIViewController {
     }
     
     @objc func hereKittyKittyTapped() {
+        playMeow()
         getCat(from: url, with: receivedCatNotificationKey)
     }
     
