@@ -20,7 +20,7 @@ func getCat(from url: String, with notification: String) {
     let task = URLSession.shared.dataTask(with: URL(string: url)!) { data, response, error in
         guard let data = data else { return }
         let jsonData = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-        let id = jsonData?["id"] as? String ?? ""
+        let id = jsonData?["_id"] as? String ?? ""
         let created_at = jsonData?["created_at"] as? String ?? ""
         let tags = jsonData?["tags"] as? [String] ?? [""]
         let url = jsonData?["url"] as? String ?? ""
